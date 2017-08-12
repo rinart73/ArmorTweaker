@@ -36,7 +36,12 @@ public class MCArmorMaterial implements IArmorMaterial
 
     @Override
     public String getTextureName() {
-        return material.getName();
+        try {
+            return (String) VanillaHelper.materialName.get(material);
+        } catch (Exception e) {
+            MineTweakerAPI.logError("IArmorMaterial - getTextureName for " + material.name() + ": " + e.toString());
+        }
+        return "";
     }
 
     @Override

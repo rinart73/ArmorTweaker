@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-//Will be loaded only if JEI is loaded
+//Will be loaded only if JEI is installed
 public class JeiHelper
 {
     //Find all JEI anvil recipes
@@ -58,39 +58,53 @@ public class JeiHelper
 
         List<ItemStack> newRightInputs = Collections.singletonList(newStack);
 
-        for (Map.Entry<AnvilRecipe, Object> entry : VanillaHelper.anvilRecipeWrappers.entrySet()) {
-            AnvilRecipe recipe = entry.getKey();
+        if (oldStack == null || oldStack.isEmpty()) {
+            //If oldStack is empty, there is no recipes to search, we need to create them
+            armorStackList.forEach(armor -> {
+                ItemStack fromStack = new ItemStack(armor.getItem());
+                ItemStack toStack = new ItemStack(armor.getItem());
+                fromStack.setItemDamage(0);
+                toStack.setItemDamage(armor.getMaxDamage() / 4);
+                List<ItemStack> outputs = Collections.singletonList(toStack);
+                newRecipes.add(new AnvilRecipeWrapper(fromStack, newRightInputs, outputs));
+            });
+        } else {
+            //Or search for recipes
+            for (Map.Entry<AnvilRecipe, Object> entry : VanillaHelper.anvilRecipeWrappers.entrySet()) {
+                AnvilRecipe recipe = entry.getKey();
 
-            for (int i = 0; i < armorListSize; i++) {
-                if (!recipe.leftInput.isItemEqualIgnoreDurability(armorStackList.get(i)))
-                    continue;
+                for (int i = 0; i < armorListSize; i++) {
+                    if (!recipe.leftInput.isItemEqualIgnoreDurability(armorStackList.get(i)))
+                        continue;
 
-                boolean found = false;
+                    boolean found = false;
                 /* Checking every ItemStack if it matches repairMaterial:
                  * <minecraft:leather:*> and <minecraft:leather> will match
                  * Reverse order will match too */
-                for (ItemStack right : recipe.rightInputs) {
-                    if (right.isEmpty() && !oldStack.isEmpty() || !right.isEmpty() && oldStack.isEmpty())
-                        continue;
+                    for (ItemStack right : recipe.rightInputs) {
+                        if (right.isEmpty() && !oldStack.isEmpty() || !right.isEmpty() && oldStack.isEmpty())
+                            continue;
 
-                    if (right.getItem() == oldStack.getItem()) {
-                        if (right.getItemDamage() == OreDictionary.WILDCARD_VALUE
-                                || oldStack.getItemDamage() == OreDictionary.WILDCARD_VALUE
-                                || right.getItemDamage() == oldStack.getItemDamage()) {
-                            found = true;
-                            armorStackList.remove(i);
-                            armorListSize--;
-                            break;
+                        if (right.getItem() == oldStack.getItem()) {
+                            if (right.getItemDamage() == OreDictionary.WILDCARD_VALUE
+                                    || oldStack.getItemDamage() == OreDictionary.WILDCARD_VALUE
+                                    || right.getItemDamage() == oldStack.getItemDamage()) {
+                                found = true;
+                                armorStackList.remove(i);
+                                armorListSize--;
+                                break;
+                            }
                         }
                     }
+
+                    if (!found)
+                        continue;
+
+                    oldRecipes.add(entry.getValue());
+                    if (newStack != null && !newStack.isEmpty())
+                        newRecipes.add(new AnvilRecipeWrapper(recipe.leftInput, newRightInputs, recipe.outputs));
+                    break;
                 }
-
-                if (!found)
-                    continue;
-
-                oldRecipes.add(entry.getValue());
-                newRecipes.add(new AnvilRecipeWrapper(recipe.leftInput, newRightInputs, recipe.outputs));
-                break;
             }
         }
     }

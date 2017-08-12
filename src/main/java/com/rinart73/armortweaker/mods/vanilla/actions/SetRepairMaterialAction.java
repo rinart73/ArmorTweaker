@@ -33,11 +33,11 @@ public class SetRepairMaterialAction implements IUndoableAction
         List<Object> oldRecipes = new ArrayList<>();
 
         if (VanillaHelper.isJei) {
+            ItemStack oldStack = this.oldValue != null ? (ItemStack) this.oldValue.getInternal() : ItemStack.EMPTY;
+            ItemStack newStack = this.newValue != null ? (ItemStack) this.newValue.getInternal() : ItemStack.EMPTY;
             /* Get all armor repair recipes for armor with this armor material
              * And construct new repair recipes with new repairMaterial */
-            JeiHelper.getArmorRepairRecipes(oldRecipes, newRecipes, material,
-                    (ItemStack) this.oldValue.getInternal(),
-                    (ItemStack) this.newValue.getInternal());
+            JeiHelper.getArmorRepairRecipes(oldRecipes, newRecipes, material, oldStack, newStack);
         }
 
         this.newRecipes = newRecipes;
