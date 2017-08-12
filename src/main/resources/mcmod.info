@@ -1,0 +1,16 @@
+[
+{
+  "modid": "armortweaker",
+  "name": "Armor Tweaker",
+  "description": "This mod allows users to modify armor and armor material stats, as well as create new armor materials.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Rinart73"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
